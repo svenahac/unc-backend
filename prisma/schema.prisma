@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" 
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  username String  @unique
+  password String
+  AudioFiles AudioFile[]
+}
+
+model AudioFile {
+  id         String       @id @default(uuid())
+  filePath   String       @unique
+  annotated  Boolean      @default(false)
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+  Annotations Annotation[]
+}
+
+model Annotation {
+  id         String  @id @default(uuid())
+  startTime  Float
+  endTime    Float
+  classId    String
+  class      AnnotationClass   @relation(fields: [classId], references: [id])
+  audioFileId String
+  audioFile  AudioFile @relation(fields: [audioFileId], references: [id])
+}
+
+model AnnotationClass {
+  id   String @id @default(uuid())
+  name String @unique
+  Annotations Annotation[]
+}

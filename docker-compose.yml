@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: unc_testset_db
+      POSTGRES_USER: svenahac
+      POSTGRES_PASSWORD: "*fEQmf&492H%MW"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
