@@ -16,6 +16,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/helpers/seed.ts"],
   "exclude": ["node_modules", "dist"]
 }
