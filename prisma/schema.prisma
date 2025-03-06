@@ -11,30 +11,26 @@ model User {
   id       String  @id @default(uuid())
   username String  @unique
   password String
-  audioFiles AudioFile[] 
+  annotations Annotation[]
 }
 
 model AudioFile {
   id         String       @id @default(uuid())
   filePath   String       @unique
   annotated  Boolean      @default(false)
-  Annotations Annotation[]
-  userId    String
-  user      User         @relation( fields: [userId], references: [id])
+  annotations Annotation[]
 }
 
 model Annotation {
   id         String  @id @default(uuid())
-  startTime  Float
-  endTime    Float
-  classes      AnnotationClass[]
   audioFileId String
+  annotatedBy  String
+  annotations Json
   audioFile  AudioFile @relation(fields: [audioFileId], references: [id])
+  user        User       @relation(fields: [annotatedBy], references: [id])
 }
 
 model AnnotationClass {
   id   String @id @default(uuid())
   name String @unique
-  annotations Annotation[]
-  
 }

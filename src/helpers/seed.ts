@@ -1,49 +1,95 @@
 import { PrismaClient } from "@prisma/client";
+import fs from "fs";
+import path from "path";
 
 const prisma = new PrismaClient();
+const audioDir = path.join(__dirname, "../../uploads/audio");
+//Command to run it npx ts-node .\seed.ts
 
 const annotationClasses = [
-  { id: "1", name: "Unclear" },
-  { id: "2", name: "Not an option" },
-  { id: "3", name: "Boat Engine" },
-  { id: "4", name: "Boat Horn" },
-  { id: "5", name: "Car Engine" },
-  { id: "6", name: "Car Horn" },
-  { id: "7", name: "Children Playing" },
-  { id: "8", name: "Church Bell" },
-  { id: "9", name: "Conversation" },
-  { id: "10", name: "Crying" },
-  { id: "11", name: "Dog Bark" },
-  { id: "12", name: "Helicopter" },
-  { id: "13", name: "Lightning Strike" },
-  { id: "14", name: "Rain" },
-  { id: "15", name: "Scooter" },
-  { id: "16", name: "Seagull Cry" },
-  { id: "17", name: "Storm" },
-  { id: "18", name: "Tourist Chatter" },
-  { id: "19", name: "Wave Crash" },
-  { id: "20", name: "Wind" },
-  { id: "21", name: "Yelling" },
+  "Unclear",
+  "Not an option",
+  "Boat Engine",
+  "Boat Horn",
+  "Car Engine",
+  "Car Horn",
+  "Children Playing",
+  "Church Bell",
+  "Conversation",
+  "Crying",
+  "Dog Bark",
+  "Helicopter",
+  "Lightning Strike",
+  "Rain",
+  "Scooter",
+  "Seagull Cry",
+  "Storm",
+  "Tourist Chatter",
+  "Wave Crash",
+  "Wind",
+  "Yelling",
 ];
 
-async function seedAnnotationClasses() {
+async function seed() {
   try {
-    for (const annotationClass of annotationClasses) {
+    // Step 1: Ensure the uploads/audio directory exists
+    if (!fs.existsSync(audioDir)) {
+      console.log("No audio directory found. Creating...");
+      fs.mkdirSync(audioDir, { recursive: true });
+      return;
+    }
+
+    // Step 2: Seed annotation classes
+    console.log("Seeding annotation classes...");
+    for (const className of annotationClasses) {
       await prisma.annotationClass.upsert({
-        where: { id: annotationClass.id },
-        update: { name: annotationClass.name },
-        create: {
-          id: annotationClass.id,
-          name: annotationClass.name,
-        },
+        where: { name: className },
+        update: {},
+        create: { name: className },
       });
     }
-    console.log("Annotation classes seeded successfully");
+
+    console.log("Annotation classes seeded.");
+
+    // Step 3: Read files in the audio directory (filter only .wav files)
+    const audioFiles = fs
+      .readdirSync(audioDir)
+      .filter((file) => file.endsWith(".wav"));
+
+    if (audioFiles.length === 0) {
+      console.log("No .wav audio files found in uploads/audio.");
+      return;
+    }
+
+    console.log(
+      `Found ${audioFiles.length} .wav audio files. Seeding database...`
+    );
+
+    // Step 4: Seed audio files
+    for (const file of audioFiles) {
+      const existingFile = await prisma.audioFile.findUnique({
+        where: { filePath: file },
+      });
+
+      if (!existingFile) {
+        await prisma.audioFile.create({
+          data: {
+            filePath: file,
+            annotated: false, // Default to false
+          },
+        });
+        console.log(`Added: ${file}`);
+      } else {
+        console.log(`Skipped (already exists): ${file}`);
+      }
+    }
+
+    console.log("Audio files seeded successfully.");
   } catch (error) {
-    console.error("Error seeding annotation classes:", error);
+    console.error("Seeding error:", error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-seedAnnotationClasses();
+seed();
