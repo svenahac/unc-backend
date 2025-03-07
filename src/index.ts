@@ -2,21 +2,30 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { authRouter } from "./routes/auth";
-import { annotatorRouter } from "./routes/annotator";
+import { annotationRouter } from "./routes/annotation";
 import { audioRouter } from "./routes/audio";
+import { clipRouter } from "./routes/clip";
+import { classRouter } from "./routes/classes";
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Or specify your frontend URL for security
+    exposedHeaders: ["X-Audio-Id", "X-Audio-Filepath", "X-Audio-Annotated"], // Allow frontend to access these headers
+  })
+);
+
 app.use(express.json());
 
 // Routes with Prefixes
 app.use("/auth", authRouter);
-app.use("/annotator", annotatorRouter);
+app.use("/annotation", annotationRouter);
 app.use("/audio", audioRouter);
+app.use("/clip", clipRouter);
+app.use("/classes", classRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
