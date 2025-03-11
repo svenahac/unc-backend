@@ -1,64 +1,69 @@
 import express, { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { authMiddleware } from "./auth";
 
 const prisma = new PrismaClient();
 const annotationRouter = express.Router();
 
 // Route to add a new annotation
-annotationRouter.post("/", async (req: Request, res: Response) => {
-  try {
-    const { audioFileId, annotatedBy, annotations } = req.body;
+annotationRouter.post(
+  "/",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const { audioFileId, annotatedBy, annotations } = req.body;
 
-    // Validate required fields
-    if (!audioFileId || !annotatedBy || !annotations) {
-      res.status(400).json({
-        error:
-          "Missing required fields. Please provide audioFileId, annotatedBy, and annotations.",
+      // Validate required fields
+      if (!audioFileId || !annotatedBy || !annotations) {
+        res.status(400).json({
+          error:
+            "Missing required fields. Please provide audioFileId, annotatedBy, and annotations.",
+        });
+        return;
+      }
+
+      // Validate that the audioFile exists
+      const audioFile = await prisma.audioFile.findUnique({
+        where: { id: audioFileId },
       });
-      return;
+
+      if (!audioFile) {
+        res.status(404).json({ error: "Audio file not found" });
+        return;
+      }
+
+      // Validate that the user exists
+      const user = await prisma.user.findUnique({
+        where: { id: annotatedBy },
+      });
+
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+
+      // Create the annotation
+      const newAnnotation = await prisma.annotation.create({
+        data: {
+          audioFileId,
+          annotatedBy,
+          annotations,
+        },
+      });
+
+      // Update the audio file to mark it as annotated
+      await prisma.audioFile.update({
+        where: { id: audioFileId },
+        data: { annotated: true },
+      });
+
+      res.status(201).json(newAnnotation);
+    } catch (error) {
+      console.error("Error creating annotation:", error);
+      res.status(500).json({ error: "Failed to create annotation." });
     }
-
-    // Validate that the audioFile exists
-    const audioFile = await prisma.audioFile.findUnique({
-      where: { id: audioFileId },
-    });
-
-    if (!audioFile) {
-      res.status(404).json({ error: "Audio file not found" });
-      return;
-    }
-
-    // Validate that the user exists
-    const user = await prisma.user.findUnique({
-      where: { id: annotatedBy },
-    });
-
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-
-    // Create the annotation
-    const newAnnotation = await prisma.annotation.create({
-      data: {
-        audioFileId,
-        annotatedBy,
-        annotations,
-      },
-    });
-
-    // Update the audio file to mark it as annotated
-    await prisma.audioFile.update({
-      where: { id: audioFileId },
-      data: { annotated: true },
-    });
-
-    res.status(201).json(newAnnotation);
-  } catch (error) {
-    console.error("Error creating annotation:", error);
-    res.status(500).json({ error: "Failed to create annotation." });
   }
-});
+);
 
 // Route to get all annotations where audioFile.annotated is true
 annotationRouter.get("/all", async (req: Request, res: Response) => {
