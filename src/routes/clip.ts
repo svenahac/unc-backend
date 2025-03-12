@@ -5,7 +5,7 @@ import fs from "fs";
 
 const prisma = new PrismaClient();
 const clipRouter = express.Router();
-
+const rootDir = path.join(__dirname, "../../audio");
 // Serve a specific audio file by ID
 clipRouter.get("/file/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -21,7 +21,7 @@ clipRouter.get("/file/:id", async (req: Request, res: Response) => {
     }
 
     // Construct the full path to the file
-    const filePath = path.resolve(`uploads/audio/${audioFile.filePath}`);
+    const filePath = path.join(rootDir, audioFile.filePath);
 
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
@@ -153,8 +153,7 @@ clipRouter.get("/random/file", async (req: Request, res: Response) => {
     }
 
     // Construct the full path to the file
-    const filePath = path.resolve(`uploads/audio/${randomAudioFile.filePath}`);
-
+    const filePath = path.join(rootDir, randomAudioFile.filePath);
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
       res.status(404).json({ error: "Audio file not found on server" });
