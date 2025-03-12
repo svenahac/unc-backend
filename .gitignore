@@ -3,3 +3,4 @@ uploads/audio/*
 !uploads/audio/.keep
 # Keep environment variables out of version control
 .env
+.env.deploy
