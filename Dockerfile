@@ -13,7 +13,7 @@ RUN pnpm install
 COPY . .
 # Generate Prisma client
 RUN pnpx prisma generate
-RUN pnpm p:migrate:seed
+RUN pnpx prisma migrate
 
 # Build the project
 RUN pnpm build
