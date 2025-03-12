@@ -4,7 +4,7 @@ import path from "path";
 import * as bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
-const audioDir = path.join(__dirname, "../../uploads/audio");
+const audioDir = path.join(__dirname, "../../audio");
 
 //Command to run it npx ts-node .\seed.ts
 const annotationClasses = [
