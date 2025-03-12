@@ -1,0 +1,28 @@
+services:
+  app:
+    image: ghcr.io/svenahac/urban-noise-classification:main
+    container_name: unc-web
+    env_file:
+      - .env
+    ports:
+      - 3069:3000
+    restart: on-failure
+  backend:
+    image: ghcr.io/svenahac/unc-backend:main
+    container_name: unc-backend
+    env_file:
+      - .env
+    ports:
+      - 3420:3000
+    restart: on-failure
+  postgres:
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
