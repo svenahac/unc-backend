@@ -78,7 +78,7 @@ async function seed() {
     }
 
     console.log(
-      `Found ${audioFiles.length} .wav audio files. Seeding database...`
+      `Found ${audioFiles.length} .wav audio files. Seeding database..`
     );
 
     // Step 5: Seed audio files
