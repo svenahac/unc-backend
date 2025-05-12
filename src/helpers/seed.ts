@@ -90,7 +90,6 @@ async function seed() {
         await prisma.audioFile.create({
           data: {
             filePath: file,
-            annotated: false, // Default to false
           },
         });
         console.log(`Added: ${file}`);

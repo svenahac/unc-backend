@@ -112,40 +112,41 @@ clipRouter.get("/random", async (req: Request, res: Response) => {
 // Serve a random audio file directly
 clipRouter.get("/random/file", async (req: Request, res: Response) => {
   try {
-    // Optional query parameter to filter by annotation status
-    const { annotated } = req.query;
+    // Get the userId from query parameters
+    const { userId } = req.query;
 
-    let whereClause = {};
-
-    // If the annotated parameter exists, filter by it
-    if (annotated !== undefined) {
-      if (annotated === "true" || annotated === "1") {
-        whereClause = { annotated: true };
-      } else if (annotated === "false" || annotated === "0") {
-        whereClause = { annotated: false };
-      }
-    }
-
-    // Count the total number of matching records
-    const count = await prisma.audioFile.count({
-      where: whereClause,
-    });
-
-    if (count === 0) {
-      res
-        .status(404)
-        .json({ error: "No audio files found matching the criteria." });
+    if (!userId || typeof userId !== "string") {
+      res.status(400).json({ error: "User ID is required" });
       return;
     }
 
-    // Generate a random skip value
-    const randomSkip = Math.floor(Math.random() * count);
-
-    // Fetch a single random record
-    const randomAudioFile = await prisma.audioFile.findFirst({
-      where: whereClause,
-      skip: randomSkip,
+    // Find files that:
+    // 1. Have less than 3 total annotations
+    // 2. Haven't been annotated by this user
+    const eligibleFiles = await prisma.audioFile.findMany({
+      where: {
+        annotated: { lt: 3 },
+        annotations: {
+          none: {
+            annotatedBy: userId,
+          },
+        },
+      },
     });
+
+    const count = eligibleFiles.length;
+
+    if (count === 0) {
+      res.status(404).json({
+        error:
+          "No eligible audio files found. You may have already annotated all available files.",
+      });
+      return;
+    }
+
+    // Choose a random file from eligible files
+    const randomIndex = Math.floor(Math.random() * count);
+    const randomAudioFile = eligibleFiles[randomIndex];
 
     if (!randomAudioFile || !randomAudioFile.filePath) {
       res.status(404).json({ error: "Audio file not found" });
@@ -154,6 +155,7 @@ clipRouter.get("/random/file", async (req: Request, res: Response) => {
 
     // Construct the full path to the file
     const filePath = path.join(rootDir, randomAudioFile.filePath);
+
     // Check if the file exists
     if (!fs.existsSync(filePath)) {
       res.status(404).json({ error: "Audio file not found on server" });
@@ -161,7 +163,7 @@ clipRouter.get("/random/file", async (req: Request, res: Response) => {
     }
 
     // Include metadata in headers
-    res.setHeader("X-Audio-Id", randomAudioFile.id);
+    res.setHeader("X-Audio-Id", randomAudioFile.id.toString());
     res.setHeader("X-Audio-FilePath", path.basename(randomAudioFile.filePath));
     res.setHeader("X-Audio-Annotated", randomAudioFile.annotated.toString());
 
@@ -171,6 +173,7 @@ clipRouter.get("/random/file", async (req: Request, res: Response) => {
       "Content-Disposition",
       `attachment; filename=${path.basename(filePath)}`
     );
+
     // Stream the file to the response
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);

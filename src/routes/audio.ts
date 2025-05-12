@@ -50,7 +50,11 @@ audioRouter.get("/filter", async (req: Request, res: Response) => {
 
     // Build the query
     const whereClause =
-      isAnnotated !== undefined ? { annotated: isAnnotated } : {};
+      isAnnotated === true
+        ? { annotated: { gt: 0 } }
+        : isAnnotated === false
+        ? { annotated: 0 }
+        : {};
 
     const audioFiles = await prisma.audioFile.findMany({
       where: whereClause,

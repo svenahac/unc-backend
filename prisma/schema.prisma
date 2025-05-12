@@ -17,7 +17,7 @@ model User {
 model AudioFile {
   id         String       @id @default(uuid())
   filePath   String       @unique
-  annotated  Boolean      @default(false)
+  annotated  Int      @default(0)
   annotations Annotation[]
 }
 

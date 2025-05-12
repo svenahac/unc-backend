@@ -54,7 +54,11 @@ annotationRouter.post(
       // Update the audio file to mark it as annotated
       await prisma.audioFile.update({
         where: { id: audioFileId },
-        data: { annotated: true },
+        data: {
+          annotated: {
+            increment: 1,
+          },
+        },
       });
 
       res.status(201).json(newAnnotation);
@@ -71,7 +75,7 @@ annotationRouter.get("/all", async (req: Request, res: Response) => {
     const annotations = await prisma.annotation.findMany({
       where: {
         audioFile: {
-          annotated: true,
+          annotated: { gt: 0 },
         },
       },
       include: {
