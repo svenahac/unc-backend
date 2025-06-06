@@ -8,10 +8,16 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  username String  @unique
-  password String
-  annotations Annotation[]
+  id                  String       @id @default(uuid())
+  username            String       @unique
+  password            String
+  accuracy            Float        @default(0)
+  overreliance        Float        @default(0)
+  agreement           Float        @default(0)
+  labelTimeAvg        Float        @default(0)
+  engagementScore     Float        @default(0)
+  interfaceSuggestion Int          @default(0)
+  annotations         Annotation[]
 }
 
 model AudioFile {
@@ -22,13 +28,26 @@ model AudioFile {
 }
 
 model Annotation {
-  id         String  @id @default(uuid())
-  audioFileId String
-  annotatedBy  String
-  annotations Json
-  audioFile  AudioFile @relation(fields: [audioFileId], references: [id])
-  user        User       @relation(fields: [annotatedBy], references: [id])
+  id                String   @id @default(uuid())
+  audioFileId       String
+  annotatedBy       String
+  annotations       Json     @default("{}")
+  aiAnnotations     Json     @default("{}")
+  interfaceVersion  Int      @default(0)
+  labelingTime      Float    @default(0)
+  mousePath         Json     @default("[]")
+  hoverDurations    Json     @default("{}")
+  aiHoverCount      Int      @default(0)
+  clickDelays       Float[]  @default([])
+  labelAgreement    Float    @default(0)
+  intervalAgreement Float    @default(0)
+  labelAccuracy     Float    @default(0)
+  intervalAccuracy  Float    @default(0)
+  audioFile         AudioFile @relation(fields: [audioFileId], references: [id])
+  user              User      @relation(fields: [annotatedBy], references: [id])
 }
+
+
 
 model AnnotationClass {
   id   String @id @default(uuid())

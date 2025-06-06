@@ -127,6 +127,9 @@ audioRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const audioFile = await prisma.audioFile.findUnique({
       where: { id },
+      include: {
+        annotations: true,
+      },
     });
     if (!audioFile) {
       res.status(404).json({ error: "Audio file not found" });

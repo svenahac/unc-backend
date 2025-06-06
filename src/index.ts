@@ -6,6 +6,7 @@ import { annotationRouter } from "./routes/annotation";
 import { audioRouter } from "./routes/audio";
 import { clipRouter } from "./routes/clip";
 import { classRouter } from "./routes/classes";
+import { userRouter } from "./routes/user";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/annotation", annotationRouter);
 app.use("/audio", audioRouter);
 app.use("/clip", clipRouter);
 app.use("/classes", classRouter);
+app.use("/users", userRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
