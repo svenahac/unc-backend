@@ -97,40 +97,75 @@ annotationRouter.get("/all", async (req: Request, res: Response) => {
 });
 
 // Route to get all annotations for a specific audio file
-annotationRouter.get("/:audioFileId", async (req: Request, res: Response) => {
+annotationRouter.get("/:id", async (req: Request, res: Response) => {
   try {
-    const { audioFileId } = req.params;
+    const { id } = req.params;
 
     // Validate that the audioFile exists
-    const audioFile = await prisma.audioFile.findUnique({
-      where: { id: audioFileId },
+    const annotation = await prisma.annotation.findUnique({
+      where: { id: id },
     });
 
-    if (!audioFile) {
+    if (!annotation) {
       res.status(404).json({ error: "Audio file not found" });
       return;
     }
 
-    const annotations = await prisma.annotation.findMany({
-      where: {
-        audioFileId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-      },
-    });
-
-    res.status(200).json(annotations);
+    res.status(200).json(annotation);
   } catch (error) {
     console.error("Error fetching annotations for audio file:", error);
     res
       .status(500)
       .json({ error: "Failed to fetch annotations for audio file." });
+  }
+});
+
+annotationRouter.put("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  // We'll take all updatable fields from req.body
+  const {
+    audioFileId,
+    annotatedBy,
+    annotations,
+    aiAnnotations,
+    interfaceVersion,
+    labelingTime,
+    mousePath,
+    hoverDurations,
+    aiHoverCount,
+    clickDelays,
+    labelAgreement,
+    intervalAgreement,
+    labelAccuracy,
+    intervalAccuracy,
+  } = req.body;
+
+  try {
+    const updatedAnnotation = await prisma.annotation.update({
+      where: { id },
+      data: {
+        // Only update fields if they are provided (avoid overwriting with undefined)
+        ...(audioFileId !== undefined && { audioFileId }),
+        ...(annotatedBy !== undefined && { annotatedBy }),
+        ...(annotations !== undefined && { annotations }),
+        ...(aiAnnotations !== undefined && { aiAnnotations }),
+        ...(interfaceVersion !== undefined && { interfaceVersion }),
+        ...(labelingTime !== undefined && { labelingTime }),
+        ...(mousePath !== undefined && { mousePath }),
+        ...(hoverDurations !== undefined && { hoverDurations }),
+        ...(aiHoverCount !== undefined && { aiHoverCount }),
+        ...(clickDelays !== undefined && { clickDelays }),
+        ...(labelAgreement !== undefined && { labelAgreement }),
+        ...(intervalAgreement !== undefined && { intervalAgreement }),
+        ...(labelAccuracy !== undefined && { labelAccuracy }),
+        ...(intervalAccuracy !== undefined && { intervalAccuracy }),
+      },
+    });
+
+    res.status(200).json(updatedAnnotation);
+  } catch (error) {
+    console.error("Error updating annotation:", error);
+    res.status(500).json({ error: "Failed to update annotation." });
   }
 });
 

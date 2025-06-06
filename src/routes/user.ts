@@ -38,4 +38,35 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
+userRouter.put("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const {
+    accuracy,
+    overreliance,
+    agreement,
+    labelTimeAvg,
+    engagementScore,
+    interfaceSuggestion,
+  } = req.body;
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        accuracy,
+        overreliance,
+        agreement,
+        labelTimeAvg,
+        engagementScore,
+        interfaceSuggestion,
+      },
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Failed to update user." });
+  }
+});
+
 export { userRouter };
