@@ -15,7 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: "*", // Or specify your frontend URL for security
-    exposedHeaders: ["X-Audio-Id", "X-Audio-Filepath", "X-Audio-Annotated"], // Allow frontend to access these headers
+    exposedHeaders: ["X-Audio-Id", "X-Audio-Filepath", "X-Audio-Annotated", "X-AI-Classes", "X-AI-Regions", "X-AI-Interface"], // Allow frontend to access these headers
   })
 );
 

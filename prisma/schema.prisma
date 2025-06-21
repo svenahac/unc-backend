@@ -8,16 +8,19 @@ datasource db {
 }
 
 model User {
-  id                  String       @id @default(uuid())
-  username            String       @unique
-  password            String
-  accuracy            Float        @default(0)
-  overreliance        Float        @default(0)
-  agreement           Float        @default(0)
-  labelTimeAvg        Float        @default(0)
-  engagementScore     Float        @default(0)
-  interfaceSuggestion Int          @default(0)
-  annotations         Annotation[]
+  id                        String       @id @default(uuid())
+  username                  String       @unique
+  password                  String
+  accuracy_label            Float        @default(0)
+  accuracy_interval         Float        @default(0)
+  overreliance_label        Float        @default(0)
+  overreliance_interval     Float        @default(0)
+  agreement_label           Float        @default(0)
+  agreement_interval        Float        @default(0)
+  labelTimeAvg              Float        @default(0)
+  engagementScore           Float        @default(0)
+  interfaceSuggestion       Int          @default(0)
+  annotations               Annotation[]
 }
 
 model AudioFile {
@@ -33,6 +36,7 @@ model Annotation {
   annotatedBy       String
   annotations       Json     @default("{}")
   aiAnnotations     Json     @default("{}")
+  aiClasses         Json     @default("{}")
   interfaceVersion  Int      @default(0)
   labelingTime      Float    @default(0)
   mousePath         Json     @default("[]")
@@ -43,6 +47,8 @@ model Annotation {
   intervalAgreement Float    @default(0)
   labelAccuracy     Float    @default(0)
   intervalAccuracy  Float    @default(0)
+  engagment         Float    @default(0)
+  flag              Int      @default(0)
   audioFile         AudioFile @relation(fields: [audioFileId], references: [id])
   user              User      @relation(fields: [annotatedBy], references: [id])
 }

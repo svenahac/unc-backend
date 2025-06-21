@@ -29,21 +29,24 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
       },
     });
     if (!user) {
-      res.status(404).json({ error: "Audio file not found" });
+      res.status(404).json({ error: "User not found" });
       return;
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve audio file." });
+    res.status(500).json({ error: "Failed to retrieve user." });
   }
 });
 
 userRouter.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const {
-    accuracy,
-    overreliance,
-    agreement,
+    accuracy_label,
+    accuracy_interval,
+    overreliance_label,
+    overreliance_interval,
+    agreement_label,
+    agreement_interval,
     labelTimeAvg,
     engagementScore,
     interfaceSuggestion,
@@ -53,12 +56,15 @@ userRouter.put("/:id", async (req: Request, res: Response) => {
     const updatedUser = await prisma.user.update({
       where: { id },
       data: {
-        accuracy,
-        overreliance,
-        agreement,
-        labelTimeAvg,
-        engagementScore,
-        interfaceSuggestion,
+        ...(accuracy_label !== undefined && { accuracy_label }),
+        ...(accuracy_interval !== undefined && { accuracy_interval }),
+        ...(overreliance_label !== undefined && { overreliance_label }),
+        ...(overreliance_interval !== undefined && { overreliance_interval }),
+        ...(agreement_label !== undefined && { agreement_label }),
+        ...(agreement_interval !== undefined && { agreement_interval }),
+        ...(labelTimeAvg !== undefined && { labelTimeAvg }),
+        ...(engagementScore !== undefined && { engagementScore }),
+        ...(interfaceSuggestion !== undefined && { interfaceSuggestion }),
       },
     });
 

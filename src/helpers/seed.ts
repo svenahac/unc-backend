@@ -7,29 +7,6 @@ const prisma = new PrismaClient();
 const audioDir = path.join(__dirname, "../../audio");
 
 //Command to run it npx ts-node .\seed.ts
-const annotationClasses = [
-  "Unclear",
-  "Not an option",
-  "Boat Engine",
-  "Boat Horn",
-  "Car Engine",
-  "Car Horn",
-  "Children Playing",
-  "Church Bell",
-  "Conversation",
-  "Crying",
-  "Dog Bark",
-  "Helicopter",
-  "Lightning Strike",
-  "Rain",
-  "Scooter",
-  "Seagull Cry",
-  "Storm",
-  "Tourist Chatter",
-  "Wave Crash",
-  "Wind",
-  "Yelling",
-];
 
 async function seed() {
   try {
@@ -55,17 +32,6 @@ async function seed() {
       },
     });
     console.log("Admin user created or already exists.");
-
-    // Step 3: Seed annotation classes
-    console.log("Seeding annotation classes...");
-    for (const className of annotationClasses) {
-      await prisma.annotationClass.upsert({
-        where: { name: className },
-        update: {},
-        create: { name: className },
-      });
-    }
-    console.log("Annotation classes seeded.");
 
     // Step 4: Read files in the audio directory (filter only .wav files)
     const audioFiles = fs

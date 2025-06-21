@@ -11,7 +11,25 @@ annotationRouter.post(
   authMiddleware,
   async (req: Request, res: Response) => {
     try {
-      const { audioFileId, annotatedBy, annotations } = req.body;
+      const { 
+        audioFileId, 
+        annotatedBy, 
+        annotations,
+        aiAnnotations,
+        aiClasses,
+        interfaceVersion,
+        labelingTime,
+        mousePath,
+        hoverDurations,
+        aiHoverCount,
+        clickDelays,
+        labelAgreement,
+        intervalAgreement,
+        labelAccuracy,
+        intervalAccuracy,
+        engagment,
+        flag
+      } = req.body;
 
       // Validate required fields
       if (!audioFileId || !annotatedBy || !annotations) {
@@ -48,6 +66,20 @@ annotationRouter.post(
           audioFileId,
           annotatedBy,
           annotations,
+          aiAnnotations: aiAnnotations || {},
+          aiClasses: aiClasses || {},
+          interfaceVersion: interfaceVersion || 0,
+          labelingTime: labelingTime || 0,
+          mousePath: mousePath || [],
+          hoverDurations: hoverDurations || {},
+          aiHoverCount: aiHoverCount || 0,
+          clickDelays: clickDelays || [],
+          labelAgreement: labelAgreement || 0,
+          intervalAgreement: intervalAgreement || 0,
+          labelAccuracy: labelAccuracy || 0,
+          intervalAccuracy: intervalAccuracy || 0,
+          engagment: engagment || 0,
+          flag: flag || 0
         },
       });
 
@@ -122,12 +154,12 @@ annotationRouter.get("/:id", async (req: Request, res: Response) => {
 
 annotationRouter.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  // We'll take all updatable fields from req.body
   const {
     audioFileId,
     annotatedBy,
     annotations,
     aiAnnotations,
+    aiClasses,
     interfaceVersion,
     labelingTime,
     mousePath,
@@ -138,17 +170,19 @@ annotationRouter.put("/:id", async (req: Request, res: Response) => {
     intervalAgreement,
     labelAccuracy,
     intervalAccuracy,
+    engagment,
+    flag
   } = req.body;
 
   try {
     const updatedAnnotation = await prisma.annotation.update({
       where: { id },
       data: {
-        // Only update fields if they are provided (avoid overwriting with undefined)
         ...(audioFileId !== undefined && { audioFileId }),
         ...(annotatedBy !== undefined && { annotatedBy }),
         ...(annotations !== undefined && { annotations }),
         ...(aiAnnotations !== undefined && { aiAnnotations }),
+        ...(aiClasses !== undefined && { aiClasses }),
         ...(interfaceVersion !== undefined && { interfaceVersion }),
         ...(labelingTime !== undefined && { labelingTime }),
         ...(mousePath !== undefined && { mousePath }),
@@ -159,6 +193,8 @@ annotationRouter.put("/:id", async (req: Request, res: Response) => {
         ...(intervalAgreement !== undefined && { intervalAgreement }),
         ...(labelAccuracy !== undefined && { labelAccuracy }),
         ...(intervalAccuracy !== undefined && { intervalAccuracy }),
+        ...(engagment !== undefined && { engagment }),
+        ...(flag !== undefined && { flag }),
       },
     });
 
