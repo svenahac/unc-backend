@@ -9,7 +9,7 @@ const clipRouter = express.Router();
 const rootDir = path.join(__dirname, "../../audio");
 
 // Environment variables
-const AI_API_URL = process.env.AI_API_URL;
+const AI_API_URL = process.env.AI_API_URL || "http://88.200.63.213:8000"; // TODO: remove this
 
 // Predefined array of files for Marko
 const markoFiles = [
@@ -152,7 +152,7 @@ clipRouter.get("/random", async (req: Request, res: Response) => {
 clipRouter.get("/random/file", async (req: Request, res: Response) => {
   try {
     // Get the userId from query parameters
-    const { userId } = req.query;
+    const { userId, username } = req.query;
 
     if (!userId || typeof userId !== "string") {
       res.status(400).json({ error: "User ID is required" });
@@ -206,7 +206,7 @@ clipRouter.get("/random/file", async (req: Request, res: Response) => {
     try {
       const response = await axios.get(`${AI_API_URL}/get-audio-classes`, {
         params: {
-          user_id: userId,
+          user_id: username,
           recording_id: recordingId
         }
       });
@@ -255,7 +255,7 @@ clipRouter.get("/random/file", async (req: Request, res: Response) => {
 clipRouter.get("/marko", async (req: Request, res: Response) => {
   try {
     // Get the userId from query parameters
-    const { userId } = req.query;
+    const { userId, username } = req.query;
 
     if (!userId || typeof userId !== "string") {
       res.status(400).json({ error: "User ID is required" });
@@ -311,7 +311,7 @@ clipRouter.get("/marko", async (req: Request, res: Response) => {
     try {
       const response = await axios.get(`${AI_API_URL}/get-audio-classes`, {
         params: {
-          user_id: userId,
+          user_id: username,
           recording_id: recordingId
         }
       });
