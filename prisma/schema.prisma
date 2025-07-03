@@ -34,6 +34,7 @@ model Annotation {
   id                String   @id @default(uuid())
   audioFileId       String
   annotatedBy       String
+  createdAt         DateTime @default(now())
   annotations       Json     @default("{}")
   aiAnnotations     Json     @default("{}")
   aiClasses         Json     @default("{}")

@@ -30,6 +30,7 @@ CREATE TABLE "Annotation" (
     "id" TEXT NOT NULL,
     "audioFileId" TEXT NOT NULL,
     "annotatedBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "annotations" JSONB NOT NULL DEFAULT '{}',
     "aiAnnotations" JSONB NOT NULL DEFAULT '{}',
     "aiClasses" JSONB NOT NULL DEFAULT '{}',
